@@ -16,20 +16,21 @@ int main(){
     printf("=== Example Program ===\n");
     printf("Press the stop button on the elevator panel to exit\n");
 
+    
+    int last_floor;
+    Order order_list[11] = {0};
+    Order *order_ptr = order_list;
+
     satisfy_start_cond();
 
     while(1){
 
-
-/*         int floor = elevio_floorSensor();
-
-        if(floor == 0){
-            elevio_motorDirection(DIRN_UP);
+        if(elevio_floorSensor() != -1){
+            last_floor = elevio_floorSensor();
         }
-
-        if(floor == N_FLOORS-1){
-            elevio_motorDirection(DIRN_DOWN);
-        } */
+        add_order(order_ptr);
+        execute_order(order_ptr,last_floor);
+        
 
         if (get_floor_btn_pressed() != -1)
         {
@@ -51,6 +52,10 @@ int main(){
         }
         
         set_floor_indicator();
+
+       
+
+        
         nanosleep(&(struct timespec){0, 20*1000*1000}, NULL);
     }
 
