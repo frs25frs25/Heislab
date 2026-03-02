@@ -1,9 +1,7 @@
 #ifndef STARTUP_H
 #define STARTUP_H
-#include <stdbool.h>
-
-int start_condition;
-bool start_cond_achieved;
+void satisfy_start_cond();
+int is_in_startcond();
 
 #endif
 

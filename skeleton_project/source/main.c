@@ -4,7 +4,11 @@
 #include <time.h>
 #include "driver/elevio.h"
 
-
+#include "lights.h"
+#include "door.h"
+#include "order_handling.h"
+#include "startup.h"
+#include "interrupts.h"
 
 int main(){
     elevio_init();
@@ -12,10 +16,12 @@ int main(){
     printf("=== Example Program ===\n");
     printf("Press the stop button on the elevator panel to exit\n");
 
-    elevio_motorDirection(DIRN_UP);
+    satisfy_start_cond();
 
     while(1){
-        int floor = elevio_floorSensor();
+
+
+/*         int floor = elevio_floorSensor();
 
         if(floor == 0){
             elevio_motorDirection(DIRN_UP);
@@ -23,15 +29,15 @@ int main(){
 
         if(floor == N_FLOORS-1){
             elevio_motorDirection(DIRN_DOWN);
-        }
+        } */
 
+        if (get_floor_btn_pressed() != -1)
+        {
+            printf("Floor number is: %d\n", get_floor_btn_pressed());
 
-        for(int f = 0; f < N_FLOORS; f++){
-            for(int b = 0; b < N_BUTTONS; b++){
-                int btnPressed = elevio_callButton(f, b);
-                elevio_buttonLamp(f, b, btnPressed);
-            }
         }
+        
+        highlight_button_on_press();
 
         if(elevio_obstruction()){
             elevio_stopLamp(1);
@@ -44,8 +50,9 @@ int main(){
             break;
         }
         
+        set_floor_indicator();
         nanosleep(&(struct timespec){0, 20*1000*1000}, NULL);
     }
 
-    return 0;
 }
+#include "driver/elevio.h"
