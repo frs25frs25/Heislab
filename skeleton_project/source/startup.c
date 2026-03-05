@@ -18,6 +18,14 @@ void satisfy_start_cond(){
         elevio_motorDirection(-1);
 
     }
+    for (int f = 0; f < 4; f++){
+        for (int b = 0; b < 3; b++)
+        {
+            elevio_buttonLamp(f, b, 0);
+        }
+        
+    }
+    
     elevio_motorDirection(0);
 }
 

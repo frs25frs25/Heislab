@@ -1,14 +1,21 @@
 #include "lights.h"
+#include "order_handling.h"
 #include "driver/elevio.h"
 #include <stdio.h>
 
-void highlight_button_on_press(){
-     for(int f = 0; f < 4; f++){
-            for(int b = 0; b < 3; b++){
-                int btnPressed = elevio_callButton(f, b);
-                elevio_buttonLamp(f, b, btnPressed);
-            }
+void extinguish_light(Order *order_ptr){
+   elevio_buttonLamp((order_ptr)->floor, (order_ptr)->btn_type, 0);
+    
+}
+
+void highlight_order_btns(Order *order_ptr){
+    for (int i = 0; i < 10; i++){
+        if((order_ptr+i)->in_use){
+             elevio_buttonLamp((order_ptr+i)->floor, (order_ptr+i)->btn_type, 1);
         }
+
+    }
+    
 }
 
 void set_floor_indicator(){
@@ -18,3 +25,4 @@ void set_floor_indicator(){
 
     
 }
+

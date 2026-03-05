@@ -22,38 +22,18 @@ int main(){
     Order *order_ptr = order_list;
 
     satisfy_start_cond();
-
+   
     while(1){
 
         if(elevio_floorSensor() != -1){
             last_floor = elevio_floorSensor();
         }
+        highlight_order_btns(order_ptr);
         add_order(order_ptr);
         execute_order(order_ptr,last_floor);
-        
-
-        if (get_floor_btn_pressed() != -1)
-        {
-            printf("Floor number is: %d\n", get_floor_btn_pressed());
-
-        }
-        
-        highlight_button_on_press();
-
-        if(elevio_obstruction()){
-            elevio_stopLamp(1);
-        } else {
-            elevio_stopLamp(0);
-        }
-        
-        if(elevio_stopButton()){
-            elevio_motorDirection(DIRN_STOP);
-            break;
-        }
-        
         set_floor_indicator();
 
-       
+        stop_btn_procedure(order_ptr);
 
         
         nanosleep(&(struct timespec){0, 20*1000*1000}, NULL);
