@@ -3,7 +3,7 @@
 #include "lights.h"
 #include "driver/elevio.h"
 
-void stop_btn_procedure(Order *order_ptr){
+void stop_btn_procedure(Order *order_ptr, MotorDirection *dir_ptr){
     while (elevio_stopButton()){
         elevio_stopLamp(1);
         if (elevio_floorSensor() != -1)
@@ -13,6 +13,8 @@ void stop_btn_procedure(Order *order_ptr){
 
         
         elevio_motorDirection(DIRN_STOP);
+       
+
         for (int i = 0; i < 10; i++)
         {
             extinguish_light(order_ptr+i);

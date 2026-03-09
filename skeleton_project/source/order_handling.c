@@ -54,9 +54,7 @@ int get_btn_type_pressed(){
 void add_order(Order *order_ptr){
     int floor = get_floor_btn_pressed();
     int button = get_btn_type_pressed();
-/*     printf("Floor = %d\n", floor);
-    printf("button = %d\n", button);
-    printf("------\n"); */
+
     
     if((floor != -1) || (button != -1)){
         for(int i = 0; i<10; i++){
@@ -66,7 +64,7 @@ void add_order(Order *order_ptr){
                 (order_ptr+i)->btn_type = button;
                 (order_ptr+i)->floor = floor;
                 (order_ptr+i)->in_use = 1;
-                print_order_array(order_ptr);
+                // print_order_array(order_ptr);
                 
 
 
@@ -77,24 +75,41 @@ void add_order(Order *order_ptr){
     
 }
 
-void execute_order(Order *order_ptr, int last_floor){
-    if(order_ptr->in_use == 0){return;}
+void remove_similar_orders(Order *order_ptr, int last_floor){
+    for(int i = 0; i < 10; i++){
+        if(((order_ptr+i)->floor == last_floor)&&((order_ptr+i)->in_use == 1)){
+            extinguish_light(order_ptr+i);
+            remove_order(order_ptr, i);
+            i-=1;
+        }
+    }
+}
 
+void execute_order(Order *order_ptr, int last_floor, MotorDirection *dir_ptr){
+    if(order_ptr->in_use == 0){return;}
+    
     if((order_ptr->floor - last_floor)>0){
         elevio_motorDirection(DIRN_UP);
+        *dir_ptr = DIRN_UP;
 
-    }
-    else if((order_ptr->floor - last_floor)<0){
+    }else if((order_ptr->floor - last_floor)<0){
         elevio_motorDirection(DIRN_DOWN);
+        *dir_ptr = DIRN_DOWN;
 
-    }
-    else{
+    }else{
+        if(elevio_floorSensor() == -1){
+        elevio_motorDirection(-(*dir_ptr));
+
+        }
+        else{
+
         elevio_motorDirection(DIRN_STOP);
-        remove_order(order_ptr);
+        *dir_ptr = DIRN_STOP;
+        remove_similar_orders(order_ptr,last_floor);
         elevio_doorOpenLamp(1);
         nanosleep(&(struct timespec){3, 0}, NULL);
         elevio_doorOpenLamp(0);
-    
+        }
     
     }
    
@@ -102,11 +117,10 @@ void execute_order(Order *order_ptr, int last_floor){
 
 }
 
-void remove_order(Order *order_ptr){
+void remove_order(Order *order_ptr, int order_to_delete_index){
 
 
-    extinguish_light(order_ptr);
-    for (int i = 0; i < 10; i++){
+    for (int i = order_to_delete_index; i < 10; i++){
         if((order_ptr+i)->in_use == 0){
             break;}
         (order_ptr+i)->btn_type = (order_ptr+i+1)->btn_type;
