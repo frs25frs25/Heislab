@@ -31,9 +31,14 @@ int main(){
             last_floor = elevio_floorSensor();
         }
         highlight_order_btns(order_ptr);
-        add_order(order_ptr);
+        add_order(order_ptr, last_floor);
         execute_order(order_ptr,last_floor, dir_ptr);
         set_floor_indicator();
+
+
+        for(int i = 1; i<10; i++){
+            jump_the_queue(order_ptr,(order_ptr+i), last_floor);
+        }
 
         stop_btn_procedure(order_ptr, dir_ptr);
 

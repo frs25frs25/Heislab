@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include "interrupts.h"
+
 int get_floor_btn_pressed(){
          for(int f = 0; f < 4; f++){
             for(int b = 0; b < 3; b++){
@@ -51,7 +53,7 @@ int get_btn_type_pressed(){
         return -1;
 }
 
-void add_order(Order *order_ptr){
+void add_order(Order *order_ptr, int last_floor){
     int floor = get_floor_btn_pressed();
     int button = get_btn_type_pressed();
 
@@ -64,8 +66,10 @@ void add_order(Order *order_ptr){
                 (order_ptr+i)->btn_type = button;
                 (order_ptr+i)->floor = floor;
                 (order_ptr+i)->in_use = 1;
+                //print_order_array(order_ptr);
+                jump_the_queue(order_ptr,(order_ptr+i), last_floor);
                 // print_order_array(order_ptr);
-                
+
 
 
                 break;
@@ -73,6 +77,57 @@ void add_order(Order *order_ptr){
         }
     } 
     
+}
+
+void jump_the_queue(Order*forder,Order* lorder, int last_floor){
+
+    if(lorder->btn_type!=2){
+
+        if( 
+            ( abs(last_floor-lorder->floor) < abs(last_floor-forder->floor) )
+            && ((lorder->floor-last_floor)*(forder->floor-last_floor) > 0 )
+            && ((forder->floor-last_floor)*(set_btn_sign(lorder->btn_type)) > 0)
+        ){
+            
+            for (int i = 10; i > 0; i--){
+                if((forder+i-1)->in_use == 0){
+                    continue;}
+                (forder+i)->btn_type = (forder+i-1)->btn_type;
+                (forder+i)->floor = (forder+i-1)->floor;
+                (forder+i)->in_use = (forder+i-1)->in_use;
+            }
+            (forder)->btn_type = (lorder+1)->btn_type;
+            (forder)->floor = (lorder+1)->floor;
+            (forder)->in_use = (lorder+1)->in_use;
+            (lorder+1)->btn_type = 0;
+            (lorder+1)->floor = 0;
+            (lorder+1)->in_use = 0;
+
+        }
+
+    }else{
+        if( 
+            ( abs(last_floor-lorder->floor) < abs(last_floor-forder->floor) )
+            && ((lorder->floor-last_floor)*(forder->floor-last_floor) > 0 )
+        ){
+        
+            for (int i = 10; i > 0; i--){
+                if((forder+i-1)->in_use == 0){
+                    continue;}
+                (forder+i)->btn_type = (forder+i-1)->btn_type;
+                (forder+i)->floor = (forder+i-1)->floor;
+                (forder+i)->in_use = (forder+i-1)->in_use;
+            }
+            (forder)->btn_type = (lorder+1)->btn_type;
+            (forder)->floor = (lorder+1)->floor;
+            (forder)->in_use = (lorder+1)->in_use;
+            (lorder+1)->btn_type = 0;
+            (lorder+1)->floor = 0;
+            (lorder+1)->in_use = 0;
+
+        }
+    }
+
 }
 
 void remove_similar_orders(Order *order_ptr, int last_floor){
@@ -108,6 +163,7 @@ void execute_order(Order *order_ptr, int last_floor, MotorDirection *dir_ptr){
         remove_similar_orders(order_ptr,last_floor);
         elevio_doorOpenLamp(1);
         nanosleep(&(struct timespec){3, 0}, NULL);
+        obstruction();
         elevio_doorOpenLamp(0);
         }
     
@@ -115,6 +171,17 @@ void execute_order(Order *order_ptr, int last_floor, MotorDirection *dir_ptr){
    
     
 
+}
+
+
+int set_btn_sign(int buttontype){
+    if (buttontype == BUTTON_HALL_UP){
+        return 1;
+    } else if (buttontype == BUTTON_HALL_DOWN){
+        return -1;
+    } else {
+        return 0;
+    }
 }
 
 void remove_order(Order *order_ptr, int order_to_delete_index){

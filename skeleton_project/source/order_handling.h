@@ -5,7 +5,7 @@
 int get_floor_btn_pressed();
 int get_btn_type_pressed();
 int get_floor_btn_pressed();
-
+int set_btn_sign(int buttontype);
 
 typedef struct 
 {
@@ -15,10 +15,11 @@ typedef struct
 
 } Order;
 
-void add_order(Order *order_ptr);
+void add_order(Order *order_ptr, int last_floor);
 void execute_order(Order *order_ptr, int last_floor, MotorDirection *dir_ptr);
 void remove_order(Order *order_ptr,int order_to_delete_index);
 void delete_orders(Order *order_ptr);
 void remove_similar_orders(Order *order_ptr, int last_floor);
+void jump_the_queue(Order* forder, Order* lorder, int last_floor);
 #endif
 
