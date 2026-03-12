@@ -6,6 +6,7 @@
 #include <time.h>
 #include "interrupts.h"
 
+
 int get_floor_btn_pressed(){
          for(int f = 0; f < 4; f++){
             for(int b = 0; b < 3; b++){
@@ -19,7 +20,7 @@ int get_floor_btn_pressed(){
 
 }
 
-void delete_orders(Order *order_ptr){
+void remove_all_orders(Order *order_ptr){
     for (size_t i = 0; i < 10; i++){
         (order_ptr+i)->in_use = 0;
         (order_ptr+i)->floor = 0;
@@ -52,7 +53,7 @@ int get_btn_type_pressed(){
         }
         return -1;
 }
-
+//Legger til ordere til fronten av køen om den opfyller krav som gyldig ordre. 
 void add_order(Order *order_ptr, int last_floor){
     int floor = get_floor_btn_pressed();
     int button = get_btn_type_pressed();
@@ -66,9 +67,7 @@ void add_order(Order *order_ptr, int last_floor){
                 (order_ptr+i)->btn_type = button;
                 (order_ptr+i)->floor = floor;
                 (order_ptr+i)->in_use = 1;
-                //print_order_array(order_ptr);
-                jump_the_queue(order_ptr,(order_ptr+i), last_floor);
-                // print_order_array(order_ptr);
+                
 
 
 
@@ -79,6 +78,7 @@ void add_order(Order *order_ptr, int last_floor){
     
 }
 
+//Tar inn to ordre fra køen og sjekker om de burde bytte plass om den senere bestillingen kan utføres først på veien til å utføre første bestilling.
 void jump_the_queue(Order*forder,Order* lorder, int last_floor){
 
     if(lorder->btn_type!=2){
@@ -130,7 +130,8 @@ void jump_the_queue(Order*forder,Order* lorder, int last_floor){
 
 }
 
-void remove_similar_orders(Order *order_ptr, int last_floor){
+//Tar inn ordrekøen og siste registrerte etasje heisen var i, og sletter alle bestillinger til denne etasjen.
+void remove_orders_with_same_floor(Order *order_ptr, int last_floor){
     for(int i = 0; i < 10; i++){
         if(((order_ptr+i)->floor == last_floor)&&((order_ptr+i)->in_use == 1)){
             extinguish_light(order_ptr+i);
@@ -140,6 +141,7 @@ void remove_similar_orders(Order *order_ptr, int last_floor){
     }
 }
 
+//utfører første ordre i ordrekøen
 void execute_order(Order *order_ptr, int last_floor, MotorDirection *dir_ptr){
     if(order_ptr->in_use == 0){return;}
     
@@ -160,10 +162,10 @@ void execute_order(Order *order_ptr, int last_floor, MotorDirection *dir_ptr){
 
         elevio_motorDirection(DIRN_STOP);
         *dir_ptr = DIRN_STOP;
-        remove_similar_orders(order_ptr,last_floor);
+        remove_orders_with_same_floor(order_ptr,last_floor); //Når en bestilling utføres vil vi kalle denne funksjonen da dette betyr at alle som skal av/på ved denne etasjen gjør det.
         elevio_doorOpenLamp(1);
         nanosleep(&(struct timespec){3, 0}, NULL);
-        obstruction();
+        keep_door_open_if_obstructed(); //døra er åpen her, så da sjekker vi om obstruksjonsbryteren er aktiv.
         elevio_doorOpenLamp(0);
         }
     
@@ -173,7 +175,7 @@ void execute_order(Order *order_ptr, int last_floor, MotorDirection *dir_ptr){
 
 }
 
-
+//Koder om type butten til et nyttig format
 int set_btn_sign(int buttontype){
     if (buttontype == BUTTON_HALL_UP){
         return 1;
@@ -183,7 +185,7 @@ int set_btn_sign(int buttontype){
         return 0;
     }
 }
-
+//Fjerner en ordre ved en gitt indeks i køen og flytter alle ordre bak denne et hakk frem.
 void remove_order(Order *order_ptr, int order_to_delete_index){
 
 

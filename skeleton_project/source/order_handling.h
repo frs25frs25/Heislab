@@ -18,8 +18,8 @@ typedef struct
 void add_order(Order *order_ptr, int last_floor);
 void execute_order(Order *order_ptr, int last_floor, MotorDirection *dir_ptr);
 void remove_order(Order *order_ptr,int order_to_delete_index);
-void delete_orders(Order *order_ptr);
-void remove_similar_orders(Order *order_ptr, int last_floor);
+void remove_all_orders(Order *order_ptr);
+void remove_orders_with_same_floor(Order *order_ptr, int last_floor);
 void jump_the_queue(Order* forder, Order* lorder, int last_floor);
 #endif
 

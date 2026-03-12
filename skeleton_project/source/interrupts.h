@@ -5,5 +5,5 @@
 
 void stop_btn_procedure(Order *order_ptr, MotorDirection *dir_ptr);
 
-void obstruction();
+void keep_door_open_if_obstructed();
 #endif

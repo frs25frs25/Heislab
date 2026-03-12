@@ -4,7 +4,7 @@
 
 
 
-
+//Sjekker om heisen er i starttilstanden
 int is_in_startcond(){
     if(elevio_floorSensor() == 0){
         return 1;
